@@ -16,6 +16,10 @@ import HistoryScreen from '../screens/HistoryScreen';
 import AdminHome from '../screens/AdminHome';
 import LoginLogsScreen from '../screens/LoginLogsScreen'; 
 import UserListScreen from '../screens/UserListScreen';
+import CategoryManagementScreen from '../screens/CategoryManagementScreen';
+import FoodManagement from '../screens/FoodManagement';
+import RecipeManagement from '../screens/RecipeManagement'; 
+import FirstScreen from '../screens/FirstScreen';
 
 
 
@@ -34,8 +38,8 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Stack.Navigator>
-    
+    <Stack.Navigator initialRouteName="FirstScreen">
+      <Stack.Screen name="FirstScreen" component={FirstScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Foods" component={FoodsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="UserList" component={UserListScreen} options={{ headerShown: false }} />
@@ -45,13 +49,9 @@ export default function TabLayout() {
       <Stack.Screen name="AddFood" component={AddFoodScreen} options={{ headerShown: false }} />
       <Stack.Screen name="History" component={HistoryScreen} options={{ headerShown: false }} />
       <Stack.Screen name="AdminHome" component={AdminHome} options={{ headerShown: false }} />
-
-      
-      
-        
-
-      
-      
+      <Stack.Screen name="CategoryManagement" component={CategoryManagementScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="FoodManagement" component={FoodManagement} options={{ headerShown: false }} />
+      <Stack.Screen name="RecipeManagement" component={RecipeManagement} options={{headerShown: false}} />
     </Stack.Navigator>
   );
 }

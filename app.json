@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "my-app",
+    "name": "SaveBite",
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,7 +21,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.jamalud.myapp"
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +34,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e544dab9-5b67-464e-afd0-48a2d91cc112"
+      }
     }
   }
 }
