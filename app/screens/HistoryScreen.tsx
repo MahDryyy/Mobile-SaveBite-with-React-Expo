@@ -17,7 +17,7 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
 import foodAnimation from '../../assets/animasion/resep.json';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 
 type RootStackParamList = {
   Home: undefined;

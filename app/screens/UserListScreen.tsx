@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 type User = {
   id: number;
   username: string;

@@ -18,7 +18,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import foodAnimation from '../../assets/animasion/daftar.json';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 
 type RootStackParamList = {
   Home: undefined;

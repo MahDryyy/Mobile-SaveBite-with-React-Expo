@@ -20,7 +20,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
 import foodAnimation from '../../assets/animasion/add.json';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 
 type RootStackParamList = {
   Home: undefined;

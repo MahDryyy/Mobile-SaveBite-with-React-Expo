@@ -15,7 +15,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 interface Recipe {
   id: number;
   recipe: string;

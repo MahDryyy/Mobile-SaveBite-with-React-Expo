@@ -22,7 +22,7 @@ import foodAnimation from '../../assets/animasion/drop.json';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 
 type FormData = {
   username: string;

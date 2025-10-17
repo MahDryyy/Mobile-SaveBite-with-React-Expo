@@ -20,7 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
 import foodAnimation from '../../assets/animasion/regis.json';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 type FormData = {
   username: string;
   email: string;

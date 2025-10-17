@@ -33,7 +33,7 @@ import LottieView from 'lottie-react-native';
 import foodAnimation from '../../assets/animasion/icon.json';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 const { width } = Dimensions.get('window');
 
 type RootStackParamList = {

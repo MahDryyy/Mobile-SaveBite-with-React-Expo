@@ -14,7 +14,7 @@ import {
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { BASE_URL } from '../config/api';
+import { BASE_URL } from '../../lib/api';
 
 type RootStackParamList = {
   Login: undefined;
