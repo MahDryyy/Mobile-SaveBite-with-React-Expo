@@ -41,6 +41,7 @@ type RootStackParamList = {
   Foods: undefined;
   AddFood: undefined;
   History: undefined;
+  FertilizerHistory: undefined;
   Login: undefined; // Pastikan Login ada di navigator
 };
 
@@ -57,8 +58,25 @@ const icon = () => {
   );
 };
 
+const StatCard = ({ title, value, icon, color, subtitle }: { 
+  title: string; 
+  value: number; 
+  icon: string; 
+  color: string; 
+  subtitle?: string;
+}) => (
+  <Animated.View entering={FadeInUp.duration(600)} style={[styles.statCard, { borderLeftColor: color }]}>
+    <View style={styles.statHeader}>
+      <Text style={styles.statIcon}>{icon}</Text>
+      <Text style={[styles.statValue, { color }]}>{value}</Text>
+    </View>
+    <Text style={styles.statTitle}>{title}</Text>
+    {subtitle && <Text style={styles.statSubtitle}>{subtitle}</Text>}
+  </Animated.View>
+);
 
-type MaterialIconName = 'restaurant-menu' | 'add-circle-outline' | 'history';
+
+type MaterialIconName = 'restaurant-menu' | 'add-circle-outline' | 'history' | 'eco';
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -77,6 +95,15 @@ export default function HomeScreen() {
     isUser: boolean;
     timestamp: Date;
   }>>([]);
+  const [statistics, setStatistics] = useState({
+    totalFoods: 0,
+    totalRecipes: 0,
+    totalFertilizers: 0,
+    expiredFoods: 0,
+    warningFoods: 0,
+    freshFoods: 0
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
   const scrollViewRef = useRef<ScrollView>(null);
 
 
@@ -90,7 +117,63 @@ export default function HomeScreen() {
   useEffect(() => {
     const date = new Date();
     setCurrentDate(date.toLocaleDateString());
+    fetchStatistics();
   }, []);
+
+  const fetchStatistics = async () => {
+    setStatsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) return;
+
+      // Fetch all data in parallel
+      const [foodsResponse, recipesResponse, fertilizersResponse] = await Promise.all([
+        axios.get(`${BASE_URL}/foods`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${BASE_URL}/recipes`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${BASE_URL}/fertilizers`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+
+      const foods = foodsResponse.data || [];
+      const recipes = recipesResponse.data || [];
+      const fertilizers = fertilizersResponse.data || [];
+
+      // Calculate food status counts
+      let expiredCount = 0;
+      let warningCount = 0;
+      let freshCount = 0;
+
+      foods.forEach((food: any) => {
+        if (food.expiry_date) {
+          const today = new Date();
+          const expiry = new Date(food.expiry_date);
+          const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (daysUntilExpiry < 0) {
+            expiredCount++;
+          } else if (daysUntilExpiry <= 3) {
+            warningCount++;
+          } else {
+            freshCount++;
+          }
+        } else {
+          freshCount++;
+        }
+      });
+
+      setStatistics({
+        totalFoods: foods.length,
+        totalRecipes: recipes.length,
+        totalFertilizers: fertilizers.length,
+        expiredFoods: expiredCount,
+        warningFoods: warningCount,
+        freshFoods: freshCount
+      });
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
   useEffect(() => {
     backgroundAnim.value = withRepeat(
       withSequence(
@@ -224,7 +307,8 @@ export default function HomeScreen() {
   const navItems: { icon: MaterialIconName; label: string; screen: keyof RootStackParamList }[] = [
     { icon: 'restaurant-menu', label: 'Foods', screen: 'Foods' },
     { icon: 'add-circle-outline', label: 'Add Food', screen: 'AddFood' },
-    { icon: 'history', label: 'History', screen: 'History' },
+    { icon: 'history', label: 'History Resep', screen: 'History' },
+    { icon: 'eco', label: 'History Pupuk', screen: 'FertilizerHistory' },
   ];
 
   const renderMessage = (msg: any) => (
@@ -278,6 +362,48 @@ export default function HomeScreen() {
               {title === 'SaveBite' && icon()}
               {title}
             </Text>
+          </Animated.View>
+
+          {/* Statistics Section */}
+          <Animated.View entering={FadeInUp.delay(200).duration(600)} style={styles.statsSection}>
+            <View style={styles.statsHeader}>
+              <Text style={styles.statsTitle}>📊 Statistik Anda</Text>
+              <TouchableOpacity 
+                style={styles.refreshButton}
+                onPress={fetchStatistics}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="refresh" size={20} color="#4caf50" />
+              </TouchableOpacity>
+            </View>
+            {statsLoading ? (
+              <View style={styles.statsLoading}>
+                <ActivityIndicator size="small" color="#4caf50" />
+                <Text style={styles.statsLoadingText}>Memuat data...</Text>
+              </View>
+            ) : (
+              <View style={styles.statsGrid}>
+                <StatCard
+                  title="Total Makanan"
+                  value={statistics.totalFoods}
+                  icon="🍽️"
+                  color="#4caf50"
+                  subtitle={`${statistics.freshFoods} segar, ${statistics.warningFoods} warning, ${statistics.expiredFoods} expired`}
+                />
+                <StatCard
+                  title="Resep Dibuat"
+                  value={statistics.totalRecipes}
+                  icon="🍳"
+                  color="#ff9800"
+                />
+                <StatCard
+                  title="Pupuk Dibuat"
+                  value={statistics.totalFertilizers}
+                  icon="🌱"
+                  color="#8bc34a"
+                />
+              </View>
+            )}
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(300).duration(600)} style={styles.navCard}>
@@ -746,5 +872,83 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '500',
+  },
+  statsSection: {
+    width: '90%',
+    marginBottom: 20,
+  },
+  statsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  statsTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2e7d32',
+  },
+  refreshButton: {
+    backgroundColor: '#f0f8f0',
+    padding: 8,
+    borderRadius: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  statsLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  statsLoadingText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: '#666',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    width: '48%',
+    borderLeftWidth: 4,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  statHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  statIcon: {
+    fontSize: 24,
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  statTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  statSubtitle: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 16,
   },
 });

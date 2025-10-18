@@ -16,6 +16,7 @@ import CategoryManagementScreen from './app/screens/CategoryManagementScreen';
 import FoodsScreen from './app/screens/FoodsScreen';
 import AddFoodScreen from './app/screens/AddfoodScreen';
 import HistoryScreen from './app/screens/HistoryScreen';
+import FertilizerHistoryScreen from './app/screens/FertilizerHistory';
 import FirstScreen from './app/screens/FirstScreen';
 
 // Add type for RootStackParamList
@@ -29,6 +30,7 @@ type RootStackParamList = {
   Foods: undefined;
   AddFood: undefined;
   History: undefined;
+  FertilizerHistory: undefined;
   FoodManagement: undefined;
   RecipeManagement: undefined;
   CategoryManagement: undefined;
@@ -66,6 +68,7 @@ export default function App() {
         <Stack.Screen name="Foods" component={FoodsScreen} />
         <Stack.Screen name="AddFood" component={AddFoodScreen} />
         <Stack.Screen name="History" component={HistoryScreen} />
+        <Stack.Screen name="FertilizerHistory" component={FertilizerHistoryScreen} />
         <Stack.Screen name="FoodManagement" component={FoodManagement} />
         <Stack.Screen name="RecipeManagement" component={RecipeManagement} />
         <Stack.Screen name="CategoryManagement" component={CategoryManagementScreen} />

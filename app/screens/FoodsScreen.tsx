@@ -79,6 +79,13 @@ const CustomSwitch = ({ value, onChange }: { value: boolean; onChange: () => voi
   </TouchableOpacity>
 );
 
+const SectionHeader = ({ title, count, color }: { title: string; count: number; color: string }) => (
+  <View style={styles.sectionHeader}>
+    <Text style={[styles.sectionTitle, { color }]}>{title}</Text>
+    <Text style={[styles.sectionCount, { color }]}>({count})</Text>
+  </View>
+);
+
 export default function FoodsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [foods, setFoods] = useState<Food[]>([]);
@@ -86,6 +93,7 @@ export default function FoodsScreen() {
   const [selectedQuantities, setSelectedQuantities] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(false);
   const [recipe, setRecipe] = useState<string | null>(null);
+  const [fertilizer, setFertilizer] = useState<string | null>(null);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -212,6 +220,75 @@ export default function FoodsScreen() {
     }
   };
 
+  const generateFertilizer = async () => {
+    if (selectedFoods.length === 0) {
+      Alert.alert('Peringatan', 'Harap pilih makanan terlebih dahulu');
+      return;
+    }
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      
+      const ingredients = selectedFoods.map(foodId => ({
+        id: foodId,
+        quantity: selectedQuantities[foodId] || 1
+      }));
+
+      const response = await axios.post(
+        `${BASE_URL}/fertilizer`,
+        { ingredients },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      if (response.data && response.data.fertilizer) {
+        const cleanFertilizer = response.data.fertilizer.replace(/[#*]/g, '');
+        setFertilizer(cleanFertilizer);
+      } else {
+        Alert.alert('Error', 'Format pupuk tidak valid');
+      }
+    } catch (error: any) {
+      console.error('Error generating fertilizer:', error);
+      const errorMessage = error.response?.data?.error || 'Gagal membuat pupuk';
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Group foods by expiry status
+  const groupFoodsByStatus = () => {
+    const fresh: Food[] = [];
+    const warning: Food[] = [];
+    const expired: Food[] = [];
+
+    foods.forEach(food => {
+      if (food.expiry_date) {
+        const status = getExpiryStatus(food.expiry_date);
+        switch (status.status) {
+          case 'fresh':
+            fresh.push(food);
+            break;
+          case 'warning':
+            warning.push(food);
+            break;
+          case 'expired':
+            expired.push(food);
+            break;
+        }
+      } else {
+        // If no expiry date, treat as fresh
+        fresh.push(food);
+      }
+    });
+
+    return { fresh, warning, expired };
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <ScrollView
@@ -240,8 +317,10 @@ export default function FoodsScreen() {
           </View>
         )}
 
-        {Array.isArray(foods) && foods.map((item, index) => (
-          item && (
+        {Array.isArray(foods) && foods.length > 0 && (() => {
+          const { fresh, warning, expired } = groupFoodsByStatus();
+          
+          const renderFoodItem = (item: Food, index: number) => (
             <Animated.View
               entering={FadeInUp.delay(index * 150).duration(500)}
               key={item.id?.toString() || index.toString()}
@@ -304,23 +383,80 @@ export default function FoodsScreen() {
                 <MaterialIcons name="delete-outline" size={22} color="#fff" />
               </TouchableOpacity>
             </Animated.View>
-          )
-        ))}
+          );
+
+          return (
+            <View style={styles.foodSections}>
+              {/* Expired Section */}
+              {expired.length > 0 && (
+                <View style={styles.section}>
+                  <SectionHeader
+                    title="Kadaluarsa"
+                    count={expired.length}
+                    color="#d32f2f"
+                  />
+                  {expired.map((item, index) => renderFoodItem(item, index))}
+                </View>
+              )}
+
+              {/* Warning Section */}
+              {warning.length > 0 && (
+                <View style={styles.section}>
+                  <SectionHeader
+                    title="Segera Kadaluarsa"
+                    count={warning.length}
+                    color="#f57c00"
+                  />
+                  {warning.map((item, index) => renderFoodItem(item, index))}
+                </View>
+              )}
+
+              {/* Fresh Section */}
+              {fresh.length > 0 && (
+                <View style={styles.section}>
+                  <SectionHeader
+                    title="Segar"
+                    count={fresh.length}
+                    color="#388e3c"
+                  />
+                  {fresh.map((item, index) => renderFoodItem(item, index))}
+                </View>
+              )}
+            </View>
+          );
+        })()}
 
         {foods.length > 0 && (
-          <TouchableOpacity 
-            style={styles.actionButton} 
-            onPress={generateRecipe} 
-            activeOpacity={0.8}
-          >
-            <Text style={styles.actionButtonText}>🍳 Buat Resep</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={styles.actionButton} 
+              onPress={generateRecipe} 
+              activeOpacity={0.8}
+            >
+              <Text style={styles.actionButtonText}>🍳 Buat Resep</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.fertilizerButton]} 
+              onPress={generateFertilizer} 
+              activeOpacity={0.8}
+            >
+              <Text style={styles.actionButtonText}>🌱 Buat Pupuk</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         {recipe && (
           <View style={styles.recipeBox}>
             <Text style={styles.recipeTitle}>📋 Resep:</Text>
             <Text style={styles.recipeText}>{recipe}</Text>
+          </View>
+        )}
+
+        {fertilizer && (
+          <View style={styles.fertilizerBox}>
+            <Text style={styles.fertilizerTitle}>🌱 Pupuk:</Text>
+            <Text style={styles.fertilizerText}>{fertilizer}</Text>
           </View>
         )}
 
@@ -471,18 +607,25 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
   },
+  buttonContainer: {
+    width: '100%',
+    marginBottom: 16,
+  },
   actionButton: {
     backgroundColor: '#388e3c',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
     width: '100%',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   actionButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
+  },
+  fertilizerButton: {
+    backgroundColor: '#8bc34a',
   },
   homeButton: {
     backgroundColor: '#66bb6a',
@@ -503,6 +646,23 @@ const styles = StyleSheet.create({
   recipeText: {
     fontSize: 16,
     color: '#2e7d32',
+  },
+  fertilizerBox: {
+    backgroundColor: '#dcedc8',
+    padding: 18,
+    borderRadius: 12,
+    marginBottom: 16,
+    width: '100%',
+  },
+  fertilizerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#33691e',
+  },
+  fertilizerText: {
+    fontSize: 16,
+    color: '#33691e',
   },
   quantitySelector: {
     marginTop: 8,
@@ -537,5 +697,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     color: '#388e3c',
     fontWeight: 'bold',
+  },
+  foodSections: {
+    width: '100%',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  sectionCount: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

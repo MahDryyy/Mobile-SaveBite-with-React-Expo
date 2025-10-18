@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
-import foodAnimation from '../../assets/animasion/resep.json';
+import foodAnimation from '../../assets/animasion/plant.json';
 import { BASE_URL } from '../../lib/api';
 
 type RootStackParamList = {
@@ -25,19 +25,20 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-type Recipe = {
+type Fertilizer = {
   id: number;
-  recipe: string;
+  fertilizer: string;
+  ingredients: string[] | string;
   createdAt: string;
-  ingredients: string[];
+  created_by?: string;
 };
 
-const HistoryScreen = () => {
+const FertilizerHistoryScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [fertilizers, setFertilizers] = useState<Fertilizer[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchRecipes = async () => {
+  const fetchFertilizers = async () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('userToken');
@@ -47,36 +48,45 @@ const HistoryScreen = () => {
         return;
       }
 
-      const response = await axios.get(`${BASE_URL}/recipes`, {
+      const response = await axios.get(`${BASE_URL}/fertilizers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.data) {
-        const cleanedRecipes = response.data.map((recipe: Recipe) => ({
-          ...recipe,
-          recipe: recipe.recipe.replace(/[#*]/g, '')
-        }));
-        setRecipes(cleanedRecipes);
+        console.log('Raw fertilizers data:', response.data);
+        const cleanedFertilizers = response.data.map((fertilizer: any) => {
+        
+          
+          return {
+            ...fertilizer,
+            fertilizer: fertilizer.fertilizer.replace(/[#*]/g, ''),
+            // Map ingredients to string if it's an array
+            ingredients: Array.isArray(fertilizer.ingredients) 
+              ? fertilizer.ingredients.join(', ') 
+              : fertilizer.ingredients || 'Tidak ada bahan'
+          };
+        });
+        setFertilizers(cleanedFertilizers);
       } else {
-        console.log('No recipes data in response');
-        setRecipes([]);
+        console.log('No fertilizers data in response');
+        setFertilizers([]);
       }
     } catch (error: any) {
-      console.error('Error fetching recipes:', error);
+      console.error('Error fetching fertilizers:', error);
       console.error('Error response:', error.response?.data);
       Alert.alert(
         'Error',
-        error.response?.data?.error || 'Gagal mengambil data resep'
+        error.response?.data?.error || 'Gagal mengambil data pupuk'
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteRecipe = async (id: number) => {
+  const deleteFertilizer = async (id: number) => {
     Alert.alert(
       'Konfirmasi',
-      'Apakah Anda yakin ingin menghapus resep ini?',
+      'Apakah Anda yakin ingin menghapus pupuk ini?',
       [
         { text: 'Batal', style: 'cancel' },
         {
@@ -92,18 +102,18 @@ const HistoryScreen = () => {
                 return;
               }
 
-              await axios.delete(`${BASE_URL}/recipes/${id}`, {
+              await axios.delete(`${BASE_URL}/fertilizers/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
               });
 
-              setRecipes(prev => prev.filter(recipe => recipe.id !== id));
-              Alert.alert('Sukses', 'Resep berhasil dihapus');
+              setFertilizers(prev => prev.filter(fertilizer => fertilizer.id !== id));
+              Alert.alert('Sukses', 'Pupuk berhasil dihapus');
             } catch (error: any) {
-              console.error('Error deleting recipe:', error);
+              console.error('Error deleting fertilizer:', error);
               console.error('Error response:', error.response?.data);
               Alert.alert(
                 'Error',
-                error.response?.data?.error || 'Gagal menghapus resep'
+                error.response?.data?.error || 'Gagal menghapus pupuk'
               );
             } finally {
               setLoading(false);
@@ -115,39 +125,75 @@ const HistoryScreen = () => {
   };
 
   useEffect(() => {
-    fetchRecipes();
+    fetchFertilizers();
   }, []);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatDate = (dateString: string | undefined | null) => {
+    try {
+      // Check if dateString exists and is not null/undefined
+      if (!dateString || typeof dateString !== 'string') {
+        console.log('DateString is null/undefined:', dateString);
+        return null; // Return null instead of string for fallback
+      }
+      
+      console.log('Formatting date:', dateString);
+      
+      // Handle MySQL datetime format: "2025-10-18 18:17:36"
+      let date: Date;
+      
+      if (dateString.includes(' ') && dateString.includes(':')) {
+        // MySQL datetime format: "2025-10-18 18:17:36"
+        // Convert to ISO format by replacing space with T
+        const isoString = dateString.replace(' ', 'T');
+        console.log('Converted to ISO:', isoString);
+        date = new Date(isoString);
+      } else {
+        // Standard ISO format or other formats
+        date = new Date(dateString);
+      }
+      
+      console.log('Parsed date:', date);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.log('Invalid date detected');
+        return null; // Return null for fallback    
+      }
+      
+      const formatted = date.toLocaleString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      
+
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return null; 
+    }
   };
 
-  const getTitleFromRecipe = (recipeText: string) => {
-    const words = recipeText.trim().split(/\s+/);
+  const getTitleFromFertilizer = (fertilizerText: string) => {
+    const words = fertilizerText.trim().split(/\s+/);
     const firstFiveWords = words.slice(0, 5).join(' ');
     return firstFiveWords.length > 50 ? firstFiveWords.substring(0, 50) + '...' : firstFiveWords;
   };
 
-  const renderRecipe = ({ item, index }: { item: Recipe; index: number }) => (
-    <Animated.View entering={FadeInUp.delay(index * 100)} style={styles.recipeContainer}>
-      <Text style={styles.recipeTitle}>🍳 {getTitleFromRecipe(item.recipe)}</Text>
-      <Text style={styles.timestamp}>Dibuat: {formatDate(item.createdAt)}</Text>
-      {item.ingredients && item.ingredients.length > 0 && (
+  const renderFertilizer = ({ item, index }: { item: Fertilizer; index: number }) => (
+    <Animated.View entering={FadeInUp.delay(index * 100)} style={styles.fertilizerContainer}>
+      <Text style={styles.fertilizerTitle}>🌱 {getTitleFromFertilizer(item.fertilizer)}</Text>
+       <Text style={styles.timestamp}>Dibuat: {formatDate(item.createdAt) || item.createdAt || 'Tidak diketahui'}</Text>
+      {item.ingredients && (
         <Text style={styles.ingredients}>
-          Bahan: {item.ingredients.join(', ')}
+          Bahan: {item.ingredients}
         </Text>
       )}
-      <Text style={styles.recipeText}>{item.recipe}</Text>
+      <Text style={styles.fertilizerText}>{item.fertilizer}</Text>
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => deleteRecipe(item.id)}
+        onPress={() => deleteFertilizer(item.id)}
       >
         <Text style={styles.deleteButtonText}>Hapus</Text>
       </TouchableOpacity>
@@ -158,7 +204,7 @@ const HistoryScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.headerSection}>
-          <Text style={styles.title}>History Resep</Text>
+          <Text style={styles.title}>History Pupuk</Text>
           <View style={styles.lottieContainer}>
             <LottieView
               source={foodAnimation}
@@ -174,16 +220,16 @@ const HistoryScreen = () => {
           <ActivityIndicator size="large" color="#4caf50" style={{ marginTop: 20 }} />
         ) : (
           <FlatList
-            data={recipes}
+            data={fertilizers}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={renderRecipe}
+            renderItem={renderFertilizer}
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Belum ada resep tersimpan</Text>
+                <Text style={styles.emptyText}>Belum ada pupuk tersimpan</Text>
                 <TouchableOpacity
                   style={styles.refreshButton}
-                  onPress={fetchRecipes}
+                  onPress={fetchFertilizers}
                 >
                   <Text style={styles.refreshButtonText}>Refresh</Text>
                 </TouchableOpacity>
@@ -245,7 +291,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 100,
   },
-  recipeContainer: {
+  fertilizerContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 16,
@@ -256,7 +302,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
   },
-  recipeTitle: {
+  fertilizerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#388e3c',
@@ -273,7 +319,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontStyle: 'italic',
   },
-  recipeText: {
+  fertilizerText: {
     fontSize: 15,
     color: '#555',
     lineHeight: 22,
@@ -327,4 +373,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HistoryScreen;
+export default FertilizerHistoryScreen;

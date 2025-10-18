@@ -51,9 +51,9 @@ const FirstScreen = () => {
                         style={styles.loginButton}
                         onPress={goRegister}
                     >
-                        <Text style={styles.buttonText}>Sing Up</Text>
+                        <Text style={styles.buttonText}>Sign Up</Text>
                     </TouchableOpacity>
-                    <Text style={styles.text}>Already have an account? <Text style={styles.loginText} onPress={gologin}>Sing In</Text></Text>
+                    <Text style={styles.text}>Already have an account? <Text style={styles.loginText} onPress={gologin}>Sign In</Text></Text>
                 </View>
             </View>
         </SafeAreaView>
