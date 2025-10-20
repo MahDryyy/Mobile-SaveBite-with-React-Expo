@@ -95,7 +95,7 @@ const LoginScreen = ({ navigation }: any) => {
         errorMessage = error.message;
       }
 
-      Alert.alert('Login gagal', errorMessage);
+      Alert.alert('Login failed', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -123,7 +123,7 @@ const LoginScreen = ({ navigation }: any) => {
           <Controller
             control={control}
             name="username"
-            rules={{ required: 'Username wajib diisi' }}
+            rules={{ required: 'Username is required' }}
             render={({ field: { onChange, value } }) => (
               <TextInput
                 placeholder="Username"
@@ -142,7 +142,7 @@ const LoginScreen = ({ navigation }: any) => {
           <Controller
             control={control}
             name="password"
-            rules={{ required: 'Password wajib diisi' }}
+            rules={{ required: 'Password is required' }}
             render={({ field: { onChange, value } }) => (
               <View style={styles.passwordContainer}>
                 <TextInput
@@ -185,9 +185,9 @@ const LoginScreen = ({ navigation }: any) => {
         </Animated.View>
 
         <Animated.View entering={FadeIn.delay(500).duration(500)} style={styles.registerContainer}>
-          <Text style={styles.text}>Belum punya akun?</Text>
+          <Text style={styles.text}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.registerText}> Daftar</Text>
+            <Text style={styles.registerText}> Register</Text>
           </TouchableOpacity>
         </Animated.View>
 

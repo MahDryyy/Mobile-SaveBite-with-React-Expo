@@ -75,12 +75,12 @@ const HistoryScreen = () => {
 
   const deleteRecipe = async (id: number) => {
     Alert.alert(
-      'Konfirmasi',
-      'Apakah Anda yakin ingin menghapus resep ini?',
+      'Confirmation',
+      'Are you sure you want to delete this recipe?',
       [
-        { text: 'Batal', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Hapus',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             setLoading(true);
@@ -138,10 +138,10 @@ const HistoryScreen = () => {
   const renderRecipe = ({ item, index }: { item: Recipe; index: number }) => (
     <Animated.View entering={FadeInUp.delay(index * 100)} style={styles.recipeContainer}>
       <Text style={styles.recipeTitle}>🍳 {getTitleFromRecipe(item.recipe)}</Text>
-      <Text style={styles.timestamp}>Dibuat: {formatDate(item.createdAt)}</Text>
+      <Text style={styles.timestamp}>Created: {formatDate(item.createdAt)}</Text>
       {item.ingredients && item.ingredients.length > 0 && (
         <Text style={styles.ingredients}>
-          Bahan: {item.ingredients.join(', ')}
+          Ingredients: {item.ingredients.join(', ')}
         </Text>
       )}
       <Text style={styles.recipeText}>{item.recipe}</Text>
@@ -149,7 +149,7 @@ const HistoryScreen = () => {
         style={styles.deleteButton}
         onPress={() => deleteRecipe(item.id)}
       >
-        <Text style={styles.deleteButtonText}>Hapus</Text>
+        <Text style={styles.deleteButtonText}>Delete</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -158,7 +158,7 @@ const HistoryScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.headerSection}>
-          <Text style={styles.title}>History Resep</Text>
+          <Text style={styles.title}>Recipe History</Text>
           <View style={styles.lottieContainer}>
             <LottieView
               source={foodAnimation}
@@ -180,7 +180,7 @@ const HistoryScreen = () => {
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Belum ada resep tersimpan</Text>
+                <Text style={styles.emptyText}>No recipes saved yet</Text>
                 <TouchableOpacity
                   style={styles.refreshButton}
                   onPress={fetchRecipes}
@@ -196,7 +196,7 @@ const HistoryScreen = () => {
           style={styles.homeButton} 
           onPress={() => navigation.navigate('Home')}
         >
-          <Text style={styles.homeButtonText}>🏠 Kembali ke Home</Text>
+          <Text style={styles.homeButtonText}>🏠 Back to Home</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

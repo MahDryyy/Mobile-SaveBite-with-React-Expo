@@ -82,7 +82,7 @@ export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // State
-  const [title, setTitle] = useState<'Expired' | 'Waste' | 'SaveBite'>('Expired');
+  const [title, setTitle] = useState<'No Expired' | 'No Waste' | 'SaveBite'>('No Expired');
   const [clickCount, setClickCount] = useState(0);
   const [currentDate, setCurrentDate] = useState('');
   const [message, setMessage] = useState('');
@@ -227,7 +227,7 @@ export default function HomeScreen() {
  
   const handleClick = () => {
     if (clickCount === 0) {
-      setTitle('Waste');
+      setTitle('No Waste');
       titleTranslateY.value = withSequence(
         withTiming(-30, { duration: 300, easing: Easing.out(Easing.bounce) }),
         withTiming(0, { duration: 300, easing: Easing.out(Easing.elastic(1)) })
@@ -243,7 +243,7 @@ export default function HomeScreen() {
         withTiming(1, { duration: 400 })
       );
     } else {
-      setTitle('Expired');
+      setTitle('No Expired');
     }
     setClickCount((prev) => (prev + 1) % 3);
   };
@@ -307,8 +307,8 @@ export default function HomeScreen() {
   const navItems: { icon: MaterialIconName; label: string; screen: keyof RootStackParamList }[] = [
     { icon: 'restaurant-menu', label: 'Foods', screen: 'Foods' },
     { icon: 'add-circle-outline', label: 'Add Food', screen: 'AddFood' },
-    { icon: 'history', label: 'History Resep', screen: 'History' },
-    { icon: 'eco', label: 'History Pupuk', screen: 'FertilizerHistory' },
+    { icon: 'history', label: 'Recipe History', screen: 'History' },
+    { icon: 'eco', label: 'Fertilizer History', screen: 'FertilizerHistory' },
   ];
 
   const renderMessage = (msg: any) => (
@@ -367,7 +367,7 @@ export default function HomeScreen() {
           {/* Statistics Section */}
           <Animated.View entering={FadeInUp.delay(200).duration(600)} style={styles.statsSection}>
             <View style={styles.statsHeader}>
-              <Text style={styles.statsTitle}>📊 Statistik Anda</Text>
+              <Text style={styles.statsTitle}>📊 Your Statistics</Text>
               <TouchableOpacity 
                 style={styles.refreshButton}
                 onPress={fetchStatistics}
@@ -379,25 +379,25 @@ export default function HomeScreen() {
             {statsLoading ? (
               <View style={styles.statsLoading}>
                 <ActivityIndicator size="small" color="#4caf50" />
-                <Text style={styles.statsLoadingText}>Memuat data...</Text>
+                <Text style={styles.statsLoadingText}>Loading data...</Text>
               </View>
             ) : (
               <View style={styles.statsGrid}>
                 <StatCard
-                  title="Total Makanan"
+                  title="Total Foods"
                   value={statistics.totalFoods}
                   icon="🍽️"
                   color="#4caf50"
-                  subtitle={`${statistics.freshFoods} segar, ${statistics.warningFoods} warning, ${statistics.expiredFoods} expired`}
+                  subtitle={`${statistics.freshFoods} fresh, ${statistics.warningFoods} warning, ${statistics.expiredFoods} expired`}
                 />
                 <StatCard
-                  title="Resep Dibuat"
+                  title="Recipes Created"
                   value={statistics.totalRecipes}
                   icon="🍳"
                   color="#ff9800"
                 />
                 <StatCard
-                  title="Pupuk Dibuat"
+                  title="Fertilizers Created"
                   value={statistics.totalFertilizers}
                   icon="🌱"
                   color="#8bc34a"
@@ -421,16 +421,16 @@ export default function HomeScreen() {
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(400).duration(600)} style={styles.cardInfo}>
-            <Text style={styles.extraTitle}>🍽️ Tips Anti Food Waste</Text>
-            <Text style={styles.extraText}>• Rencanakan menu & belanja bijak</Text>
-            <Text style={styles.extraText}>• Simpan sisa makanan dengan baik</Text>
-            <Text style={styles.extraText}>• Konsumsi sesuai prioritas tanggal</Text>
+            <Text style={styles.extraTitle}>🍽️ Anti Food Waste Tips</Text>
+            <Text style={styles.extraText}>• Plan your menu & shop wisely</Text>
+            <Text style={styles.extraText}>• Store leftover food properly</Text>
+            <Text style={styles.extraText}>• Consume according to expiry priority</Text>
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(500).duration(600)} style={styles.cardInfoAlt}>
-            <Text style={styles.extraTitle}>💬 Kata Mereka</Text>
+            <Text style={styles.extraTitle}>💬 What They Say</Text>
             <Text style={styles.extraText}>
-              "Sejak pakai SaveBite, tidak ada lagi makanan mubazir di rumah saya!"
+              "Since using SaveBite, no more food waste in my home!"
             </Text>
           </Animated.View>
 
@@ -469,7 +469,7 @@ export default function HomeScreen() {
                 <View>
                   <Text style={styles.chatTitle}>SaveBite Assistant</Text>
                   <Text style={styles.chatSubtitle}>
-                    Tanyakan seputar penyimpanan dan ketahanan makanan anda
+                    Ask about food storage and food preservation
                   </Text>
                 </View>
               </View>
@@ -496,13 +496,13 @@ export default function HomeScreen() {
                   </View>
                   <View style={[styles.messageBubble, styles.aiBubble]}>
                     <Text style={[styles.messageText, styles.aiMessageText]}>
-                      Halo! 👋 Selamat datang di SaveBite Assistant.{'\n\n'}
+                      Hello! 👋 Welcome to SaveBite Assistant.{'\n\n'}
                       Saya siap membantu Anda dengan informasi tentang:{'\n'}
-                      • Cara menyimpan makanan dengan benar{'\n'}
-                      • Tips menjaga ketahanan makanan{'\n'}
-                      • Informasi masa kadaluarsa{'\n'}
-                      • Cara menghindari makanan terbuang{'\n\n'}
-                      Silakan tanyakan apa saja tentang makanan Anda! 😊
+                      • How to store food correctly{'\n'}
+                      • Tips for preserving food{'\n'}
+                      • Food expiration information{'\n'}
+                      • How to avoid food waste{'\n\n'}
+                      Please ask anything about your food! 😊
                     </Text>
                   </View>
                 </View>
@@ -515,7 +515,7 @@ export default function HomeScreen() {
               <View style={styles.inputContainer}>
                 <TextInput
                   style={styles.chatInput}
-                  placeholder="Tulis pesan..."
+                  placeholder="Write a message.."
                   placeholderTextColor="#999"
                   value={message}
                   onChangeText={setMessage}
@@ -526,7 +526,7 @@ export default function HomeScreen() {
                   onPress={handleSendMessage}
                   disabled={!message.trim() || isLoading}
                 >
-                  <Text style={styles.sendButtonText}>Kirim</Text>
+                  <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
               </View>
             </View>

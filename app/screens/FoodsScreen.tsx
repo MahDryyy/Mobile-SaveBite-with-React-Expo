@@ -53,19 +53,19 @@ const getExpiryStatus = (expiryDate: string): ExpiryStatus => {
   if (daysUntilExpiry < 0) {
     return {
       status: 'expired',
-      message: 'Kadaluwarsa',
+      message: 'Expired',
       color: '#d32f2f'
     };
   } else if (daysUntilExpiry <= 3) {
     return {
       status: 'warning',
-      message: `Segera kadaluwarsa (${daysUntilExpiry} hari)`,
+      message: `Expires soon (${daysUntilExpiry} days)`,
       color: '#f57c00'
     };
   } else {
     return {
       status: 'fresh',
-      message: `${daysUntilExpiry} hari lagi`,
+      message: `${daysUntilExpiry} days left`,
       color: '#388e3c'
     };
   }
@@ -138,11 +138,11 @@ export default function FoodsScreen() {
       await axios.delete(`${BASE_URL}/foods/${foodId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      Alert.alert('Sukses', 'Makanan berhasil dihapus');
+      Alert.alert('Success', 'Food deleted successfully');
       fetchFoods();
     } catch (error) {
       console.error('Error deleting food:', error);
-      Alert.alert('Error', 'Gagal menghapus makanan');
+      Alert.alert('Error', 'Failed to delete food');
     } finally {
       setLoading(false);
     }
@@ -182,7 +182,7 @@ export default function FoodsScreen() {
 
   const generateRecipe = async () => {
     if (selectedFoods.length === 0) {
-      Alert.alert('Peringatan', 'Harap pilih makanan terlebih dahulu');
+      Alert.alert('Warning', 'Please select food first');
       return;
     }
     setLoading(true);
@@ -209,11 +209,11 @@ export default function FoodsScreen() {
         const cleanRecipe = response.data.recipe.replace(/[#*]/g, '');
         setRecipe(cleanRecipe);
       } else {
-        Alert.alert('Error', 'Format resep tidak valid');
+        Alert.alert('Error', 'Invalid recipe format');
       }
     } catch (error: any) {
       console.error('Error generating recipe:', error);
-      const errorMessage = error.response?.data?.error || 'Gagal membuat resep';
+      const errorMessage = error.response?.data?.error || 'Failed to generate recipe';
       Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
@@ -222,7 +222,7 @@ export default function FoodsScreen() {
 
   const generateFertilizer = async () => {
     if (selectedFoods.length === 0) {
-      Alert.alert('Peringatan', 'Harap pilih makanan terlebih dahulu');
+      Alert.alert('Warning', 'Please select food first');
       return;
     }
     setLoading(true);
@@ -249,11 +249,11 @@ export default function FoodsScreen() {
         const cleanFertilizer = response.data.fertilizer.replace(/[#*]/g, '');
         setFertilizer(cleanFertilizer);
       } else {
-        Alert.alert('Error', 'Format pupuk tidak valid');
+        Alert.alert('Error', 'Invalid fertilizer format');
       }
     } catch (error: any) {
       console.error('Error generating fertilizer:', error);
-      const errorMessage = error.response?.data?.error || 'Gagal membuat pupuk';
+      const errorMessage = error.response?.data?.error || 'Failed to generate fertilizer';
       Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
@@ -305,15 +305,15 @@ export default function FoodsScreen() {
           />
         </View>
         <Animated.Text entering={FadeInDown.duration(500)} style={styles.title}>
-          Daftar Makanan
+        Food List
         </Animated.Text>
 
         {loading && <ActivityIndicator size="large" color="#388e3c" style={{ marginBottom: 20 }} />}
 
         {(!foods || foods.length === 0) && !loading && (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Belum ada data makanan tersimpan</Text>
-            <Text style={styles.emptySubText}>Silakan tambahkan makanan terlebih dahulu</Text>
+            <Text style={styles.emptyText}>No food data saved yet</Text>
+            <Text style={styles.emptySubText}>Please add food first</Text>
           </View>
         )}
 
@@ -331,12 +331,12 @@ export default function FoodsScreen() {
                 onChange={() => handleCheckboxChange(item.id)}
               />
               <View style={styles.foodDetails}>
-                <Text style={styles.foodName}>{item.name || 'Nama tidak tersedia'}</Text>
-                <Text style={styles.foodInfo}>Jumlah tersedia: {item.quantity || 0}</Text>
-                <Text style={styles.foodInfo}>Kategori: {item.category_name || 'Tidak ada kategori'}</Text>
+                <Text style={styles.foodName}>{item.name || 'Name not available'}</Text>
+                <Text style={styles.foodInfo}>Available Quantity: {item.quantity || 0}</Text>
+                <Text style={styles.foodInfo}>category: {item.category_name || 'Tidak ada kategori'}</Text>
                 <View style={styles.expiryContainer}>
                   <Text style={styles.expiryDate}>
-                    Kadaluarsa: {item.expiry_date || 'Tanggal tidak tersedia'}
+                    Expired Date: {item.expiry_date || 'No expiry date'}
                   </Text>
                   {item.expiry_date && (
                     <View style={[
@@ -351,7 +351,7 @@ export default function FoodsScreen() {
                 </View>
                 {selectedFoods.includes(item.id) && (
                   <View style={styles.quantitySelector}>
-                    <Text style={styles.quantityLabel}>Jumlah untuk resep:</Text>
+                    <Text style={styles.quantityLabel}>Quantity for recipe:</Text>
                     <View style={styles.quantityControls}>
                       <TouchableOpacity
                         style={styles.quantityButton}
@@ -391,7 +391,7 @@ export default function FoodsScreen() {
               {expired.length > 0 && (
                 <View style={styles.section}>
                   <SectionHeader
-                    title="Kadaluarsa"
+                    title="Expired"
                     count={expired.length}
                     color="#d32f2f"
                   />
@@ -403,7 +403,7 @@ export default function FoodsScreen() {
               {warning.length > 0 && (
                 <View style={styles.section}>
                   <SectionHeader
-                    title="Segera Kadaluarsa"
+                    title="Expires Soon"
                     count={warning.length}
                     color="#f57c00"
                   />
@@ -415,7 +415,7 @@ export default function FoodsScreen() {
               {fresh.length > 0 && (
                 <View style={styles.section}>
                   <SectionHeader
-                    title="Segar"
+                    title="Fresh"
                     count={fresh.length}
                     color="#388e3c"
                   />
@@ -433,7 +433,7 @@ export default function FoodsScreen() {
               onPress={generateRecipe} 
               activeOpacity={0.8}
             >
-              <Text style={styles.actionButtonText}>🍳 Buat Resep</Text>
+              <Text style={styles.actionButtonText}>🍳 Create Recipe</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -441,21 +441,21 @@ export default function FoodsScreen() {
               onPress={generateFertilizer} 
               activeOpacity={0.8}
             >
-              <Text style={styles.actionButtonText}>🌱 Buat Pupuk</Text>
+              <Text style={styles.actionButtonText}>🌱 Create Fertilizer</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {recipe && (
           <View style={styles.recipeBox}>
-            <Text style={styles.recipeTitle}>📋 Resep:</Text>
+            <Text style={styles.recipeTitle}>📋 Recipe:</Text>
             <Text style={styles.recipeText}>{recipe}</Text>
           </View>
         )}
 
         {fertilizer && (
           <View style={styles.fertilizerBox}>
-            <Text style={styles.fertilizerTitle}>🌱 Pupuk:</Text>
+            <Text style={styles.fertilizerTitle}>🌱 Fertilizer:</Text>
             <Text style={styles.fertilizerText}>{fertilizer}</Text>
           </View>
         )}
@@ -465,7 +465,7 @@ export default function FoodsScreen() {
           onPress={() => navigation.navigate('Home')}
           activeOpacity={0.8}
         >
-          <Text style={styles.actionButtonText}>🏠 Kembali ke Beranda</Text>
+          <Text style={styles.actionButtonText}>🏠 Back to Home</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

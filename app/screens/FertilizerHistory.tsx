@@ -53,7 +53,6 @@ const FertilizerHistoryScreen = () => {
       });
 
       if (response.data) {
-        console.log('Raw fertilizers data:', response.data);
         const cleanedFertilizers = response.data.map((fertilizer: any) => {
         
           
@@ -68,7 +67,6 @@ const FertilizerHistoryScreen = () => {
         });
         setFertilizers(cleanedFertilizers);
       } else {
-        console.log('No fertilizers data in response');
         setFertilizers([]);
       }
     } catch (error: any) {
@@ -132,11 +130,9 @@ const FertilizerHistoryScreen = () => {
     try {
       // Check if dateString exists and is not null/undefined
       if (!dateString || typeof dateString !== 'string') {
-        console.log('DateString is null/undefined:', dateString);
         return null; // Return null instead of string for fallback
       }
       
-      console.log('Formatting date:', dateString);
       
       // Handle MySQL datetime format: "2025-10-18 18:17:36"
       let date: Date;
@@ -145,14 +141,12 @@ const FertilizerHistoryScreen = () => {
         // MySQL datetime format: "2025-10-18 18:17:36"
         // Convert to ISO format by replacing space with T
         const isoString = dateString.replace(' ', 'T');
-        console.log('Converted to ISO:', isoString);
         date = new Date(isoString);
       } else {
         // Standard ISO format or other formats
         date = new Date(dateString);
       }
       
-      console.log('Parsed date:', date);
       
       // Check if date is valid
       if (isNaN(date.getTime())) {
@@ -184,10 +178,10 @@ const FertilizerHistoryScreen = () => {
   const renderFertilizer = ({ item, index }: { item: Fertilizer; index: number }) => (
     <Animated.View entering={FadeInUp.delay(index * 100)} style={styles.fertilizerContainer}>
       <Text style={styles.fertilizerTitle}>🌱 {getTitleFromFertilizer(item.fertilizer)}</Text>
-       <Text style={styles.timestamp}>Dibuat: {formatDate(item.createdAt) || item.createdAt || 'Tidak diketahui'}</Text>
+       <Text style={styles.timestamp}>Created: {formatDate(item.createdAt) || item.createdAt || 'Unknown'}</Text>
       {item.ingredients && (
         <Text style={styles.ingredients}>
-          Bahan: {item.ingredients}
+          Ingredients: {item.ingredients}
         </Text>
       )}
       <Text style={styles.fertilizerText}>{item.fertilizer}</Text>
@@ -195,7 +189,7 @@ const FertilizerHistoryScreen = () => {
         style={styles.deleteButton}
         onPress={() => deleteFertilizer(item.id)}
       >
-        <Text style={styles.deleteButtonText}>Hapus</Text>
+        <Text style={styles.deleteButtonText}>Delete</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -204,7 +198,7 @@ const FertilizerHistoryScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.headerSection}>
-          <Text style={styles.title}>History Pupuk</Text>
+          <Text style={styles.title}>Fertilizer History</Text>
           <View style={styles.lottieContainer}>
             <LottieView
               source={foodAnimation}
@@ -226,7 +220,7 @@ const FertilizerHistoryScreen = () => {
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Belum ada pupuk tersimpan</Text>
+                <Text style={styles.emptyText}>No fertilizers saved yet</Text>
                 <TouchableOpacity
                   style={styles.refreshButton}
                   onPress={fetchFertilizers}
@@ -242,7 +236,7 @@ const FertilizerHistoryScreen = () => {
           style={styles.homeButton} 
           onPress={() => navigation.navigate('Home')}
         >
-          <Text style={styles.homeButtonText}>🏠 Kembali ke Home</Text>
+          <Text style={styles.homeButtonText}>🏠 Back to Home</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

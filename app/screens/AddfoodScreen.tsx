@@ -172,7 +172,7 @@ export default function AddFoodScreen() {
     >
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Animated.Text entering={FadeInDown.duration(500)} style={styles.title}>
-          🍽️ Tambah Makanan Baru
+          🍽️ Add New Food
         </Animated.Text>
         <View style={styles.lottieContainer}> 
           <LottieView
@@ -185,12 +185,12 @@ export default function AddFoodScreen() {
         </View>
 
         <Animated.View entering={FadeInUp.delay(200).duration(400)} style={{ width: '100%' }}>
-          <Text style={styles.label}>Nama Makanan</Text>
+          <Text style={styles.label}>Food Name</Text>
           <View style={styles.inputContainer}>
             <FontAwesomeIcon name="cutlery" size={20} color="#fff" style={styles.icon} />
             <TextInput
               style={styles.input}
-              placeholder="Contoh: Nasi Goreng"
+              placeholder="Example: Fried Rice"
               value={name}
               onChangeText={setName}
               placeholderTextColor="#81c784"
@@ -199,12 +199,12 @@ export default function AddFoodScreen() {
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(250).duration(400)} style={{ width: '100%' }}>
-          <Text style={styles.label}>Jumlah</Text>
+          <Text style={styles.label}>Quantity</Text>
           <View style={styles.inputContainer}>
             <FontAwesomeIcon name="shopping-basket" size={20} color="#fff" style={styles.icon} />
             <TextInput
               style={styles.input}
-              placeholder="Masukkan jumlah"
+              placeholder="Enter quantity"
               value={quantity}
               onChangeText={setQuantity}
               keyboardType="numeric"
@@ -214,7 +214,7 @@ export default function AddFoodScreen() {
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(300).duration(400)} style={{ width: '100%' }}>
-          <Text style={styles.label}>Pilih Kategori:</Text>
+          <Text style={styles.label}>Select Category:</Text>
           <View style={styles.categoryContainer}>
             {categories.map((category) => (
               <TouchableOpacity
@@ -237,12 +237,12 @@ export default function AddFoodScreen() {
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(350).duration(400)} style={{ width: '100%' }}>
-          <Text style={styles.label}>Tanggal Kadaluarsa</Text>
+          <Text style={styles.label}>Expiry Date</Text>
           <TouchableOpacity onPress={showDatePicker} activeOpacity={0.8}>
             <View style={styles.inputContainer}>
               <FontAwesomeIcon name="calendar" size={20} color="#fff" style={styles.icon} />
               <Text style={[styles.dateText, !expiryDate && styles.placeholderText]}>
-                {expiryDate || 'Pilih tanggal'}
+                {expiryDate || 'Select date'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -269,7 +269,7 @@ export default function AddFoodScreen() {
           >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Pilih Kategori</Text>
+                <Text style={styles.modalTitle}>Select Category</Text>
                 <TouchableOpacity onPress={() => setIsDropdownOpen(false)}>
                   <FontAwesomeIcon name="times" size={20} color="#388e3c" />
                 </TouchableOpacity>
@@ -286,7 +286,7 @@ export default function AddFoodScreen() {
 
         <Animated.View entering={FadeInUp.delay(400).duration(400)} style={{ width: '100%' }}>
           <TouchableOpacity style={styles.button} onPress={handleAddFood}>
-            <Text style={styles.buttonText}>+ Tambah Makanan</Text>
+            <Text style={styles.buttonText}>+ Add Food</Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
